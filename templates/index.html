@@ -3,520 +3,159 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>University Exam Scheduler (Strict Anti-Cheating)</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<title>Exam Scheduler</title>
 <style>
-:root {
-  --bg: #f2f0eb;
-  --surface: #ffffff;
-  --border: #ddd8cf;
-  --text: #1c1c1c;
-  --muted: #706b65;
-  --accent: #1c3d5a;
-  --accent2: #c8a94a;
-  --accent-light: #e8eef5;
-  --warning-bg: #fffbf0;
-  --warning-border: #e6c55a;
-  --danger: #8b1a1a;
-  --shift-M: #1c3d5a;
-  --shift-A: #245c2e;
-  --shift-E: #5c3820;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-header {
-  background: var(--accent);
-  color: white;
-  padding: 22px 36px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border-bottom: 3px solid var(--accent2);
-}
-header .logo { font-size: 28px; }
-header h1 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; }
-header p { font-size: 0.78rem; opacity: 0.65; margin-top: 2px; }
-
-.container { max-width: 1080px; margin: 0 auto; padding: 30px 20px; }
-
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; margin-bottom: 18px; }
-.card-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.1rem; color: var(--accent);
-  margin-bottom: 16px; padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 10px;
-}
-.step-badge {
-  background: var(--accent); color: white;
-  font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 700;
-  padding: 2px 8px; border-radius: 20px; letter-spacing: 0.06em;
-}
-
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-.rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
-@media(max-width:600px){ .grid-2,.grid-3{ grid-template-columns:1fr; } }
-.form-group { margin-bottom: 14px; }
-label { display:block; font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:5px; }
-input[type=text],input[type=number] {
-  width:100%; padding:9px 12px;
-  border:1.5px solid var(--border); border-radius:6px;
-  font-family:'DM Sans',sans-serif; font-size:0.92rem; color:var(--text);
-  background:var(--bg); outline:none; transition:border-color 0.2s;
-}
-input:focus { border-color:var(--accent); background:white; }
-
-.dept-card {
-  background: var(--bg); border:1px solid var(--border); border-radius:8px;
-  padding:14px; margin-bottom:10px; animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn{ from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
-.dept-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.dept-num { font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.07em; }
-.remove-btn {
-  width:24px;height:24px; border-radius:50%; border:1px solid #ccc;
-  background:none; color:var(--muted); cursor:pointer; font-size:13px;
-  display:flex;align-items:center;justify-content:center; transition:all 0.15s;
-}
-.remove-btn:hover{ background:#feeeee; border-color:#f88; color:#c00; }
-.add-dept-btn {
-  width:100%; padding:10px; border:2px dashed var(--border); border-radius:8px;
-  background:none; color:var(--accent); font-family:'DM Sans',sans-serif;
-  font-size:0.88rem; font-weight:600; cursor:pointer; transition:all 0.2s;
-}
-.add-dept-btn:hover{ background:var(--accent-light); border-color:var(--accent); }
-
-.btn-primary {
-  background:var(--accent); color:white; border:none;
-  padding:12px 28px; border-radius:8px; font-family:'DM Sans',sans-serif;
-  font-size:0.92rem; font-weight:600; cursor:pointer; transition:all 0.2s;
-}
-.btn-primary:hover{ background:#122b40; }
-.btn-primary:active{ transform:scale(0.98); }
-.btn-primary:disabled{ opacity:0.5; cursor:not-allowed; }
-.btn-ghost {
-  background:none; border:1px solid var(--border); color:var(--muted);
-  padding:10px 20px; border-radius:8px; font-family:'DM Sans',sans-serif;
-  font-size:0.88rem; cursor:pointer; transition:all 0.2s; margin-left:10px;
-}
-.btn-ghost:hover{ border-color:var(--accent); color:var(--accent); }
-
-.spinner { display:inline-block; width:14px;height:14px; border:2px solid rgba(255,255,255,0.35); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
-@keyframes spin{ to{transform:rotate(360deg)} }
-
-#results{ display:none; }
-
-.summary-bar {
-  background:var(--accent); color:white; border-radius:10px;
-  padding:18px 24px; display:flex; gap:0; margin-bottom:18px;
-  overflow:hidden;
-}
-.summary-item {
-  flex:1; text-align:center; padding:4px 0;
-  border-right:1px solid rgba(255,255,255,0.15);
-}
-.summary-item:last-child{ border-right:none; }
-.summary-item .val { font-family:'DM Serif Display',serif; font-size:1.8rem; display:block; }
-.summary-item .lbl { font-size:0.7rem; opacity:0.65; text-transform:uppercase; letter-spacing:0.06em; }
-
-.warn-box {
-  background:var(--warning-bg); border:1px solid var(--warning-border);
-  border-left:4px solid #d4a017; border-radius:8px; padding:14px 18px; margin-bottom:18px;
-}
-.warn-box h4{ color:#7a5a00; font-size:0.85rem; font-weight:700; margin-bottom:8px; }
-.warn-box li{ font-size:0.82rem; color:#5a4200; margin-left:16px; margin-bottom:4px; line-height:1.5; }
-
-.error-box {
-  background:#fff0f0; border:1px solid #f5c6c6; border-left:4px solid var(--danger);
-  border-radius:8px; padding:12px 16px; color:var(--danger);
-  font-size:0.88rem; margin-top:12px; display:none;
-}
-
-.tabs { display:flex; gap:2px; border-bottom:2px solid var(--border); margin-bottom:16px; }
-.tab-btn {
-  padding:8px 16px; background:none; border:none; font-family:'DM Sans',sans-serif;
-  font-size:0.85rem; font-weight:600; color:var(--muted); cursor:pointer;
-  border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.2s;
-}
-.tab-btn.active{ color:var(--accent); border-bottom-color:var(--accent); }
-.tab-panel{ display:none; }
-.tab-panel.active{ display:block; }
-
-table{ width:100%; border-collapse:collapse; font-size:0.86rem; }
-thead th {
-  background:var(--accent); color:white; padding:10px 12px;
-  text-align:left; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;
-}
-thead th:first-child{ border-radius:6px 0 0 0; }
-thead th:last-child{ border-radius:0 6px 0 0; }
-tbody tr{ border-bottom:1px solid var(--border); transition:background 0.1s; }
-tbody tr:hover{ background:var(--accent-light); }
-tbody td{ padding:9px 12px; vertical-align:middle; }
-
-.shift-badge {
-  display:inline-block; padding:2px 9px; border-radius:20px;
-  font-size:0.72rem; font-weight:700; color:white; letter-spacing:0.03em;
-}
-.sM{ background:var(--shift-M); }
-.sA{ background:var(--shift-A); }
-.sE{ background:var(--shift-E); }
-
-.dept-tag {
-  display:inline-block; padding:2px 8px; border-radius:4px;
-  font-size:0.72rem; font-weight:700; color:white; margin:1px;
-}
-
-.day-section { margin-bottom: 22px; }
-.day-heading {
-  font-size: 0.88rem; font-weight: 700; color: var(--accent);
-  background: var(--accent-light); padding: 6px 12px;
-  border-radius: 5px; margin-bottom: 10px; display: inline-block;
-}
-.shift-section { margin-bottom: 14px; }
-.shift-label {
-  font-size: 0.75rem; font-weight: 600; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.06em;
-  margin-bottom: 6px; display: block;
-}
-.room-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 4px; }
-.room-table th {
-  background: var(--bg); color: var(--muted);
-  padding: 7px 10px; text-align: left;
-  font-size: 0.72rem; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border);
-}
-.room-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-.room-table tr:last-child td { border-bottom: none; }
-.room-table tr:hover td { background: var(--accent-light); }
+  body { font-family: sans-serif; margin: 20px; background: #f9f9f9; color: #333; }
+  .card { background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 15px; }
+  .grid { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  input { padding: 6px; border: 1px solid #ccc; border-radius: 3px; }
+  button { padding: 8px 12px; cursor: pointer; background: #007bff; color: #fff; border: none; border-radius: 3px; }
+  button:hover { background: #0056b3; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 6px; text-align: left; font-size: 14px; }
+  th { background: #eee; }
+  .tag { background: #007bff; color: white; padding: 2px 6px; border-radius: 3px; font-size: 12px; font-weight: bold; }
+  .hidden { display: none; }
+  .warn-box { background: #fffbf0; border: 1px solid #e6c55a; border-left: 4px solid #d4a017; padding: 10px; margin-bottom: 15px; border-radius: 4px; font-size: 14px; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">🎓</div>
-  <div>
-    <h1>University Exam Scheduler</h1>
-    <p>Strict Anti-Cheating Seating Rule — Never 2 Students of Same Dept on One Bench</p>
-  </div>
-</header>
-
-<div class="container">
+<h2>🎓 Exam Scheduler</h2>
 
 <div id="input-section">
   <div class="card">
-    <div class="card-title"><span class="step-badge">STEP 1</span> Room & Bench Configuration</div>
-    <div class="form-group" style="max-width: 300px;">
-      <label>Total Classrooms</label>
-      <input type="number" id="total_rooms" min="1" max="20" value="4"/>
+    <h3>1. Rooms</h3>
+    <label>Total Rooms:</label>
+    <input type="number" id="total_rooms" value="4" min="1" onchange="setupRooms()"/>
+    <p style="margin-top:10px;">Benches per Room:</p>
+    <div id="rooms-container" class="grid"></div>
+  </div>
+
+  <div class="card">
+    <h3>2. Departments</h3>
+    <div id="dept-container"></div>
+    <button onclick="addDept()">+ Add Department</button>
+  </div>
+
+  <button onclick="generate()">Generate Schedule</button>
+  <p id="err" style="color:red;"></p>
+</div>
+
+<div id="results" class="hidden">
+  <div class="card">
+    <h3>Schedule Generated</h3>
+    <p><a href="/download-file">📥 Download File (.txt)</a></p>
+
+    <div id="warn-box" class="warn-box hidden">
+      <strong>⚠️ Warnings & Notes:</strong>
+      <ul id="warn-list" style="margin-left: 20px; margin-top: 5px;"></ul>
     </div>
     
-    <label style="margin-top: 10px;">Number of 2-Seater Benches per Room:</label>
-    <div id="rooms-benches-container" class="rooms-grid"></div>
+    <h4>Exam Schedule</h4>
+    <table>
+      <thead><tr><th>Dept</th><th>Exam</th><th>Day</th><th>Shift</th><th>Rooms</th><th>Placed</th></tr></thead>
+      <tbody id="sched-body"></tbody>
+    </table>
 
-    <p style="font-size:0.85rem; color:var(--muted); margin-top: 14px;">
-      Total max capacity per shift: <strong id="seats-display" style="color:var(--accent);">160</strong> students
-    </p>
+    <h4 style="margin-top:20px;">Seating Plan</h4>
+    <div id="room-plan"></div>
+
+    <br/>
+    <button onclick="location.reload()">← Back</button>
   </div>
-
-  <div class="card">
-    <div class="card-title"><span class="step-badge">STEP 2</span> Departments</div>
-    <div id="dept-list"></div>
-    <button class="add-dept-btn" onclick="addDept()">+ Add Department</button>
-  </div>
-
-  <div>
-    <button class="btn-primary" id="gen-btn" onclick="generate()">Generate Schedule</button>
-    <button class="btn-ghost" onclick="resetAll()">Reset</button>
-  </div>
-  <div class="error-box" id="error-box"></div>
-</div>
-
-<div id="results">
-  <div class="summary-bar" id="summary-bar"></div>
-  <div class="warn-box" id="warn-box" style="display:none">
-    <h4>⚠️ Schedule Notes & Warnings</h4>
-    <ul id="warn-list"></ul>
-  </div>
-
-  <div class="card">
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('schedule',this)">📋 Exam Schedule</button>
-      <button class="tab-btn" onclick="switchTab('rooms',this)">🏫 Strict Bench Seating Plan</button>
-    </div>
-
-    <div class="tab-panel active" id="tab-schedule">
-      <table>
-        <thead><tr>
-          <th>Department</th><th>Exam</th><th>Day</th><th>Shift</th>
-          <th>Rooms Used</th><th>Students Placed</th>
-        </tr></thead>
-        <tbody id="sched-body"></tbody>
-      </table>
-    </div>
-
-    <div class="tab-panel" id="tab-rooms">
-      <div id="room-plan"></div>
-    </div>
-  </div>
-
-  <button class="btn-primary" onclick="resetAll()">← Schedule Again</button>
-</div>
-
 </div>
 
 <script>
-const PALETTE = [
-  '#1c3d5a','#b5451b','#245c2e','#6a3090','#b88a00',
-  '#0d5c63','#7a1a3a','#2e4a1a','#004080','#5c4000'
-];
-const colorMap = {};
-let colorIdx = 0;
-function deptColor(name) {
-  if (!name) return '#ccc';
-  if (!colorMap[name]) colorMap[name] = PALETTE[colorIdx++ % PALETTE.length];
-  return colorMap[name];
-}
-
-let deptCount = 0;
-
-function generateRoomInputs() {
-  const container = document.getElementById('rooms-benches-container');
-  const totalRooms = Math.max(1, +document.getElementById('total_rooms').value || 1);
-  
-  const currentVals = [];
-  container.querySelectorAll('.room-bench-input').forEach(inp => {
-    currentVals.push(inp.value);
-  });
-
+function setupRooms() {
+  const container = document.getElementById('rooms-container');
+  const count = +document.getElementById('total_rooms').value || 1;
   container.innerHTML = '';
-  for (let i = 1; i <= totalRooms; i++) {
-    const val = currentVals[i - 1] || 20;
-    const div = document.createElement('div');
-    div.className = 'form-group';
-    div.innerHTML = `
-      <label>Room ${i} (Benches)</label>
-      <input type="number" class="room-bench-input" min="1" value="${val}" oninput="updateTotalSeats()"/>
-    `;
-    container.appendChild(div);
+  for (let i = 1; i <= count; i++) {
+    container.innerHTML += `<div>R${i}: <input type="number" class="bench-input" value="20" style="width:50px;"/></div>`;
   }
-  updateTotalSeats();
 }
-
-function updateTotalSeats() {
-  let totalBenches = 0;
-  document.querySelectorAll('.room-bench-input').forEach(inp => {
-    totalBenches += Math.max(0, +inp.value || 0);
-  });
-  document.getElementById('seats-display').textContent = (totalBenches * 2).toLocaleString();
-}
-
-document.getElementById('total_rooms').addEventListener('input', generateRoomInputs);
 
 function addDept() {
-  deptCount++;
   const div = document.createElement('div');
-  div.className = 'dept-card';
-  div.id = `dc-${deptCount}`;
+  div.className = 'grid';
   div.innerHTML = `
-    <div class="dept-head">
-      <span class="dept-num">Department ${deptCount}</span>
-      <button class="remove-btn" onclick="this.closest('.dept-card').remove()">✕</button>
-    </div>
-    <div class="grid-3">
-      <div class="form-group" style="grid-column:span 1">
-        <label>Name</label>
-        <input type="text" class="dn" placeholder="e.g. CSE" style="text-transform:uppercase"/>
-      </div>
-      <div class="form-group">
-        <label>Students</label>
-        <input type="number" class="ds" min="1" placeholder="e.g. 60"/>
-      </div>
-      <div class="form-group">
-        <label>Exams</label>
-        <input type="number" class="de" min="1" placeholder="e.g. 3"/>
-      </div>
-    </div>`;
-  document.getElementById('dept-list').appendChild(div);
-}
-
-function resetAll() {
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('input-section').style.display = 'block';
-  document.getElementById('error-box').style.display = 'none';
-  document.getElementById('dept-list').innerHTML = '';
-  deptCount = 0; colorIdx = 0;
-  Object.keys(colorMap).forEach(k => delete colorMap[k]);
-  document.getElementById('total_rooms').value = 4;
-  generateRoomInputs();
-  addDept(); addDept(); addDept();
+    <input type="text" class="dn" placeholder="Dept Name" style="width:100px; text-transform:uppercase"/>
+    <input type="number" class="ds" placeholder="Students" style="width:90px;"/>
+    <input type="number" class="de" placeholder="Exams" style="width:70px;"/>
+    <button onclick="this.parentElement.remove()" style="background:red;">X</button>`;
+  document.getElementById('dept-container').appendChild(div);
 }
 
 async function generate() {
-  const errBox = document.getElementById('error-box');
-  errBox.style.display = 'none';
-
-  const roomInputs = document.querySelectorAll('.room-bench-input');
-  const room_benches = [];
-  for (const inp of roomInputs) {
-    const val = +inp.value;
-    if (!val || val <= 0) return showErr('Enter valid positive bench count for all rooms.');
-    room_benches.push(val);
-  }
-
-  const cards = document.querySelectorAll('.dept-card');
-  if (!cards.length) return showErr('Add at least one department.');
-
+  const room_benches = Array.from(document.querySelectorAll('.bench-input')).map(i => +i.value);
   const departments = [];
-  for (const c of cards) {
-    const name = c.querySelector('.dn').value.trim().toUpperCase();
-    const students = +c.querySelector('.ds').value;
-    const exams = +c.querySelector('.de').value;
-    if (!name || !students || !exams) return showErr('Fill all fields for every department.');
+
+  for (const div of document.querySelectorAll('#dept-container .grid')) {
+    const name = div.querySelector('.dn').value.trim().toUpperCase();
+    const students = +div.querySelector('.ds').value;
+    const exams = +div.querySelector('.de').value;
+    if (!name || !students || !exams) {
+      document.getElementById('err').textContent = 'Please fill all fields!';
+      return;
+    }
     departments.push({ name, students, exams });
   }
 
-  const btn = document.getElementById('gen-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Scheduling...';
-
-  try {
-    const res = await fetch('/schedule', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({room_benches, departments})
-    });
-    const data = await res.json();
-    if (data.error) { showErr(data.error); return; }
-    renderResults(data, room_benches, departments);
-  } catch(e) { showErr('Server error: '+e.message); }
-  finally { btn.disabled=false; btn.innerHTML='Generate Schedule'; }
-}
-
-function showErr(msg) {
-  const b = document.getElementById('error-box');
-  b.textContent = '⚠ '+msg;
-  b.style.display = 'block';
-}
-
-function renderResults(data, room_benches, depts) {
-  document.getElementById('summary-bar').innerHTML = `
-    <div class="summary-item"><span class="val">${data.total_days}</span><span class="lbl">Days</span></div>
-    <div class="summary-item"><span class="val">${depts.length}</span><span class="lbl">Departments</span></div>
-    <div class="summary-item"><span class="val">${data.schedule.length}</span><span class="lbl">Exams</span></div>
-    <div class="summary-item"><span class="val">${room_benches.length}</span><span class="lbl">Rooms</span></div>
-    <div class="summary-item"><span class="val">${data.total_seats_per_shift}</span><span class="lbl">Max Capacity</span></div>
-  `;
-
-  if (data.warnings.length) {
-    document.getElementById('warn-box').style.display = 'block';
-    document.getElementById('warn-list').innerHTML = data.warnings.map(w=>`<li>${w}</li>`).join('');
-  } else {
-    document.getElementById('warn-box').style.display = 'none';
+  const res = await fetch('/schedule', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ room_benches, departments })
+  });
+  
+  const data = await res.json();
+  if (data.error) {
+    document.getElementById('err').textContent = data.error;
+    return;
   }
 
-  const tbody = document.getElementById('sched-body');
-  tbody.innerHTML = '';
-  data.schedule.forEach(row => {
-    const color = deptColor(row.dept);
-    const shiftClass = {Morning:'sM',Afternoon:'sA',Evening:'sE'}[row.shift]||'sM';
-    const roomStr = row.rooms.map(r=>`Room ${r.room_id} (${r.students})`).join(', ');
-    tbody.innerHTML += `
-      <tr>
-        <td><span class="dept-tag" style="background:${color}">${row.dept}</span></td>
-        <td>Exam ${row.exam_num}</td>
-        <td>Day ${row.day}</td>
-        <td><span class="shift-badge ${shiftClass}">${row.shift}</span></td>
-        <td style="font-size:0.8rem;color:var(--muted)">${roomStr}</td>
-        <td><strong>${row.placed}</strong><span style="color:var(--muted);font-size:0.8rem"> / ${row.total}</span></td>
-      </tr>`;
-  });
-
-  renderRoomPlan(data.room_plan);
-
-  document.getElementById('input-section').style.display = 'none';
-  document.getElementById('results').style.display = 'block';
-  window.scrollTo(0,0);
+  render(data);
 }
 
-function renderRoomPlan(roomPlan) {
-  const container = document.getElementById('room-plan');
-  container.innerHTML = '';
+function render(data) {
+  document.getElementById('input-section').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
 
-  const byDay = {};
-  roomPlan.forEach(slot => {
-    if (!byDay[slot.day]) byDay[slot.day] = [];
-    byDay[slot.day].push(slot);
-  });
+  const warnBox = document.getElementById('warn-box');
+  const warnList = document.getElementById('warn-list');
+  if (data.warnings && data.warnings.length > 0) {
+    warnBox.classList.remove('hidden');
+    warnList.innerHTML = data.warnings.map(w => `<li>${w}</li>`).join('');
+  } else {
+    warnBox.classList.add('hidden');
+  }
 
-  Object.keys(byDay).sort((a,b)=>+a-+b).forEach(day => {
-    const dayDiv = document.createElement('div');
-    dayDiv.className = 'day-section';
-    dayDiv.innerHTML = `<div class="day-heading">Day ${day}</div>`;
+  document.getElementById('sched-body').innerHTML = data.schedule.map(r => `
+    <tr>
+      <td><span class="tag">${r.dept}</span></td>
+      <td>Exam ${r.exam_num}</td><td>Day ${r.day}</td><td>${r.shift}</td>
+      <td>${r.rooms.map(rm => `Room ${rm.room_id}`).join(', ')}</td>
+      <td>${r.placed}/${r.total}</td>
+    </tr>`).join('');
 
-    byDay[day].forEach(slot => {
-      const shiftDiv = document.createElement('div');
-      shiftDiv.className = 'shift-section';
-      shiftDiv.innerHTML = `<span class="shift-label">${slot.shift}</span>`;
-
-      slot.rooms.forEach(room => {
-        const deptsStr = room.depts.map(d =>
-          `<span class="dept-tag" style="background:${deptColor(d)}">${d}</span>`
-        ).join(' ');
-
-        let benchRows = '';
-        room.bench_grid.forEach(b => {
-          const colA = b.pos_a_dept ? deptColor(b.pos_a_dept) : '#ccc';
-          const colB = b.pos_b_dept ? deptColor(b.pos_b_dept) : '#ccc';
-
-          const posAText = b.pos_a_dept 
-            ? `<span class="dept-tag" style="background:${colA}">${b.pos_a_dept}</span> (${b.pos_a_label})`
-            : `<span style="color:#888;font-style:italic">Empty (No Cheating)</span>`;
-
-          const posBText = b.pos_b_dept 
-            ? `<span class="dept-tag" style="background:${colB}">${b.pos_b_dept}</span> (${b.pos_b_label})`
-            : `<span style="color:#888;font-style:italic">Empty (No Cheating)</span>`;
-
-          benchRows += `
+  document.getElementById('room-plan').innerHTML = data.room_plan.map(slot => `
+    <div style="margin-top:10px;">
+      <strong>Day ${slot.day} - ${slot.shift}</strong>
+      ${slot.rooms.map(rm => `
+        <table>
+          <tr><th colspan="3">Room ${rm.room_id}</th></tr>${rm.bench_grid.map(b => `
             <tr>
-              <td style="color:var(--muted);width:90px;font-weight:600">Bench ${b.bench}</td>
-              <td style="width:45%">${posAText}</td>
-              <td style="width:45%">${posBText}</td>
-            </tr>`;
-        });
-
-        shiftDiv.innerHTML += `
-          <div style="margin-bottom:14px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <strong style="font-size:0.85rem">Room ${room.room_id} (${room.num_benches} Benches)</strong>
-              <span style="font-size:0.78rem;color:var(--muted)">${room.occupied}/${room.capacity} students &nbsp;|&nbsp; ${deptsStr}</span>
-            </div>
-            <table class="room-table">
-              <thead><tr><th>Bench No.</th><th>Left Seat (Pos A)</th><th>Right Seat (Pos B)</th></tr></thead>
-              <tbody>${benchRows}</tbody>
-            </table>
-          </div>`;
-      });
-
-      dayDiv.appendChild(shiftDiv);
-    });
-
-    container.appendChild(dayDiv);
-  });
+              <td>Bench ${b.bench}</td>
+              <td>${b.pos_a_dept ? b.pos_a_dept + ' (' + b.pos_a_label + ')' : 'Empty'}</td>
+              <td>${b.pos_b_dept ? b.pos_b_dept + ' (' + b.pos_b_label + ')' : 'Empty'}</td>
+            </tr>`).join('')}
+        </table>`).join('')}
+    </div>`).join('');
 }
 
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  btn.classList.add('active');
-}
-
-generateRoomInputs();
-addDept(); addDept(); addDept();
+setupRooms();
+addDept();
+addDept();
 </script>
 </body>
 </html>
